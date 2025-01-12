@@ -78,6 +78,8 @@ main:
 
     mov si, msg_hw   ; Load address of the message into SI
     call puts        ; Call the puts function to print the message
+    
+    cli
     hlt              ; Halt the CPU (stop execution)
 
 
@@ -164,7 +166,7 @@ disk_read:
     jnc .done
 
     ; failed
-    popa
+    popa                        ; retore all
     call disk_reset
 
     dec di
@@ -174,6 +176,7 @@ disk_read:
 .fail:
     jmp floppy_read_error
 
+; restores and returns
 .done:
     popa
     pop di
@@ -197,7 +200,7 @@ disk_reset:
 ; ------------------------------------- end disk routines --------------------------------------
 
 ; Null-terminated message strings
-msg_hw: db 'Hello, World!', ENDL, 0  ; Message followed by a newline and null terminator
+msg_hw: db 'Boot successful', ENDL, 0  ; Message followed by a newline and null terminator
 msg_read_failed: db 'Read operation from disk failed', ENDL, 0
 
 ; Fill remaining space in the boot sector with zeros
