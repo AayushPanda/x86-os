@@ -6,13 +6,13 @@ bits 16             ; Use 16-bit instructions since we are in real mode
 ; FAT12 HEADER
 jmp short start
 nop
-
+; boot paramter block
 bdb_oem:                    db 'MSWIN4.1'               ; OEM Name
 bdb_bytes_per_sector:       dw 512                      ; Bytes per sector
 bdb_sectors_per_cluster:    db 1                        ; Sectors per cluster
 bdb_reserved_sectors:       dw 1                        ; Number of reserved sectors
 bdb_fat_count:              db 2                        ; Number of FATs
-bdb_dir_entries_count:      dw 0x0e0                     ; Number of root directory entries
+bdb_dir_entries_count:      dw 224                     ; Number of root directory entries
 bdb_total_sectors:          dw 2880                     ; Total number of sectors
 bdb_media_descriptor_type:  db 0x0f0                     ; Media descriptor type
 bdb_sectors_per_fat:        dw 9                        ; Number of sectors per FAT
@@ -197,6 +197,21 @@ disk_reset:
     popa
     ret
 
+;; Reading from root directory file entrieswaterlo
+; Offset in Bytes 	Length in Bytes 	Description
+; 0 	            8                   File name
+; 8 	            3                   Extension
+; 11 	            1                   Attributes
+; 12 	            2                   Reserved
+; 14 	            2                   Creation Time
+; 16 	            2                   Creation Date
+; 18 	            2                   Last Access Date
+; 20 	            2                   Ignore
+; 22 	            2                   Last Write Time
+; 24 	            2                   Last Write Date
+; 26 	            2                   First Logical Cluster
+; 28 	            4                   File Size (in bytes)
+
 ; ------------------------------------- end disk routines --------------------------------------
 
 ; Null-terminated message strings
@@ -206,5 +221,5 @@ msg_read_failed: db 'Read operation from disk failed', ENDL, 0
 ; Fill remaining space in the boot sector with zeros
 times 510-($-$$) db 0  ; Fill until the 510th byte (sector size is 512 bytes)
 
-; Boot signature
+; Boot signature (last two bytes)
 dw 0xAA55             ; Boot sector signature (mandatory for BIOS boot)
